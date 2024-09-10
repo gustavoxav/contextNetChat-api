@@ -24,8 +24,8 @@ Desenvolver uma solução de comunicação segura dentro da rede **ContextNet**,
 3. Por fim, execute o MobileSender.java como javaApplication e a mensagem deve ser exibida no console.
 
 ## Futuras Implementações
-- **Melhorias na interface de usuário.
-- **Implementação de novos algoritmos de criptografia.
-- **Auditoria de segurança automatizada.
+- Melhorias na interface de usuário.
+- Implementação de novos algoritmos de criptografia.
+- Auditoria de segurança automatizada.
 
 ## CEFET-RJ, Sistemas de Informação
