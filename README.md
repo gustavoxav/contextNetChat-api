@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/3d19b855-5907-4e09-8bec-2ee15c5f86e7)# ContextNet-Encrypted-Messager
+# ContextNet-Encrypted-Messager
 
 Este projeto visa proporcionar maior segurança na comunicação entre usuários da rede **ContextNet**, aplicando métodos de criptografia para proteger as mensagens transmitidas.
 
