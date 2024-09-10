@@ -1,4 +1,4 @@
-# ContextNet-Encrypted-Messager
+![image](https://github.com/user-attachments/assets/3d19b855-5907-4e09-8bec-2ee15c5f86e7)# ContextNet-Encrypted-Messager
 
 Este projeto visa proporcionar maior segurança na comunicação entre usuários da rede **ContextNet**, aplicando métodos de criptografia para proteger as mensagens transmitidas.
 
@@ -19,13 +19,9 @@ Desenvolver uma solução de comunicação segura dentro da rede **ContextNet**,
    ```bash
    git clone https://github.com/seu-usuario/contextnet-encrypt.git
    
-2. Clone o repositório:
-   ```bash
-   cd contextnet-encrypt
+2. Execute primeiro o arquivo MobileReceiver.java como javaApplication;
 
-3. Execute o projeto:
-   ```bash
-   java -jar libs/contextnet-2.5.jar local.bot.chon.group 3271 openslice
+3. Por fim, execute o MobileSender.java como javaApplication e a mensagem deve ser exibida no console.
 
 ## Futuras Implementações
 - **Melhorias na interface de usuário.
