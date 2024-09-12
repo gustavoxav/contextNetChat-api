@@ -1,11 +1,13 @@
 package br.cefet.segaudit;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,15 +20,19 @@ import lac.cnclib.sddl.message.Message;
 
 public class MobileReceiver implements NodeConnectionListener {
 
-    private static String       gatewayIP    = "bsi.cefet-rj.br";
-    private static int          gatewayPort  = 5500;
+    private static String gatewayIP = "bsi.cefet-rj.br";
+    private static int gatewayPort = 5500;
     private MrUdpNodeConnection connection;
-    private UUID                myUUID;
-    private static final String SECRET_KEY = "segaudit12345678";
+    private UUID myUUID;
+
+    // Chaves do receiver
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
 
     public MobileReceiver() {
-        myUUID = UUID.fromString("788b2b22-baa6-4c61-b1bb-01cff1f5f878");  
+        myUUID = UUID.fromString("788b2b22-baa6-4c61-b1bb-01cff1f5f878");
         InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
+
         try {
             connection = new MrUdpNodeConnection(myUUID);
             connection.addNodeConnectionListener(this);
@@ -34,50 +40,60 @@ public class MobileReceiver implements NodeConnectionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Gera o par de chaves e utiliza a chave privada e pública
+        KeyPair keyPair = generateKeyPair();
+        privateKey = keyPair.getPrivate();
+        publicKey = keyPair.getPublic();
+
+        // Exibe a chave pública para que o Sender possa utilizá-la
+        System.out.println("Receiver Public Key (Base64): " + Base64.getEncoder().encodeToString(publicKey.getEncoded()));
     }
 
     public static void main(String[] args) {
         Logger.getLogger("").setLevel(Level.ALL);
-
-        MobileReceiver receiver = new MobileReceiver();
+        new MobileReceiver();
     }
 
-    public String decrypt(String encryptedMessage) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decryptedBytes = Base64.getDecoder().decode(encryptedMessage);
-        return new String(cipher.doFinal(decryptedBytes));
-    }
-
-    public void connected(NodeConnection remoteCon) {
-        ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("Registering");
-
+    // Gera um par de chaves (pública e privada) para o receiver
+    private KeyPair generateKeyPair() {
         try {
-            connection.sendMessage(message);
-        } catch (IOException e) {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            return keyGen.generateKeyPair();
+        } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
+    // Método para descriptografar a mensagem usando a chave privada do receiver
+    public String decrypt(String encryptedMessage, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
+
+        return new String(decryptedBytes);  // Retorna a mensagem descriptografada
+    }
+
+    @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
             String encryptedMessage = (String) message.getContentObject();
-            System.out.println("Received encrypted message: " + encryptedMessage);
-
-            String decryptedMessage = decrypt(encryptedMessage);
+            String decryptedMessage = decrypt(encryptedMessage, privateKey);  // Descriptografar a mensagem
             System.out.println("Decrypted message: " + decryptedMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void connected(NodeConnection remoteCon) {}
+
     public void reconnected(NodeConnection remoteCon, java.net.SocketAddress endPoint, boolean wasHandover, boolean wasMandatory) {}
 
     public void disconnected(NodeConnection remoteCon) {}
 
-    public void unsentMessages(NodeConnection remoteCon, List<Message> unsentMessages) {}
+    public void unsentMessages(NodeConnection remoteCon, java.util.List<lac.cnclib.sddl.message.Message> unsentMessages) {}
 
     public void internalException(NodeConnection remoteCon, Exception e) {}
 }
