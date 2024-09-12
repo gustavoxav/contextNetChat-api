@@ -4,6 +4,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +28,9 @@ public class MobileReceiver implements NodeConnectionListener {
     private UUID                myUUID;
     private static final String SECRET_KEY = "segaudit12345678";
 
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
+    
     public MobileReceiver() {
         myUUID = UUID.fromString("788b2b22-baa6-4c61-b1bb-01cff1f5f878");  
         InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
@@ -34,6 +41,13 @@ public class MobileReceiver implements NodeConnectionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        KeyPair keyPair = generateKeyPair();
+        privateKey = keyPair.getPrivate();
+        publicKey = keyPair.getPublic();
+
+        System.out.println("Receiver Public Key (Base64): " + Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+        
     }
 
     public static void main(String[] args) {
@@ -41,18 +55,29 @@ public class MobileReceiver implements NodeConnectionListener {
 
         MobileReceiver receiver = new MobileReceiver();
     }
+    
+    private KeyPair generateKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            return keyGen.generateKeyPair();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-    public String decrypt(String encryptedMessage) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decryptedBytes = Base64.getDecoder().decode(encryptedMessage);
-        return new String(cipher.doFinal(decryptedBytes));
+    public String decrypt(String encryptedMessage, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
+
+        return new String(decryptedBytes);
     }
 
     public void connected(NodeConnection remoteCon) {
         ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("Registering");
+        message.setContentObject("Registrando");
 
         try {
             connection.sendMessage(message);
@@ -64,10 +89,10 @@ public class MobileReceiver implements NodeConnectionListener {
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
             String encryptedMessage = (String) message.getContentObject();
-            System.out.println("Received encrypted message: " + encryptedMessage);
+            System.out.println("Mensagem criptografada recebida: " + encryptedMessage);
 
-            String decryptedMessage = decrypt(encryptedMessage);
-            System.out.println("Decrypted message: " + decryptedMessage);
+            String decryptedMessage = decrypt(encryptedMessage, privateKey);
+            System.out.println("Mensagem descriptografada: " + decryptedMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }
