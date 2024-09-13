@@ -4,6 +4,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -20,8 +23,9 @@ public class MobileSender implements NodeConnectionListener {
     private static int          gatewayPort  = 5500;
     private MrUdpNodeConnection connection;
     private UUID                myUUID;
-    private static final String SECRET_KEY = "segaudit12345678"; // Chave de 16 bytes (128 bits)
 
+    private static final String RECEIVER_PUBLIC_KEY_BASE64 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs+sETSs2GwowTWrU3gRXFaxgCeHDmgl4jXkvbudh/kxvq8hXx+SwWc+T0lvVxKVqyhSEOwykhqO+Qw5VaT9VWbm2aCP4whPekSg68AWuvzzokEzjZZA1WrK+JBfMPqgt7Nlih1rb9qTMk56Iv3z0m/j4LjJOSvaZGMeqlRiwF/Ppvpksbepj1hx+B6l0vReJcNLaYBGWTmoZ0bqSmZA5MJrUhagNFD0KegPAXVoK2ICFgtyW+m0UufWRmlgqXx0XV2FGlJALYPmgpekmg9/P9wU3MgSyZfB8BXhTcr2thZVfPVhhdG38i+76hfWSwoaQYGkmYQ3Kg+84poWwnXIjDQIDAQAB";
+    
     public MobileSender() {
         myUUID = UUID.fromString("bb103877-8335-444a-be5f-db8d916f6754");
         InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
@@ -38,27 +42,32 @@ public class MobileSender implements NodeConnectionListener {
         Logger.getLogger("").setLevel(Level.ALL);
 
         MobileSender sender = new MobileSender();
-        sender.sendTextMessage("Hello, mensagem segura para comunicação!");
+        sender.sendTextMessage("Mensagem segura para comunicação assíncrona!");
     }
 
-    public String encrypt(String message) throws Exception {
-        SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+    public String encrypt(String message, String publicKeyBase64) throws Exception {
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedBytes = cipher.doFinal(message.getBytes());
+
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
     public void sendTextMessage(String messageContent) {
         try {
-            String encryptedMessage = encrypt(messageContent);
+            String encryptedMessage = encrypt(messageContent, RECEIVER_PUBLIC_KEY_BASE64);
             System.out.println("Encrypted message: " + encryptedMessage);
 
             ApplicationMessage message = new ApplicationMessage();
             message.setContentObject(encryptedMessage);
-            message.setRecipientID(UUID.fromString("788b2b22-baa6-4c61-b1bb-01cff1f5f878"));  // UUID do destinatário
+            message.setRecipientID(UUID.fromString("788b2b22-baa6-4c61-b1bb-01cff1f5f878"));
 
-            connection.sendMessage(message);  // Enviar mensagem criptografada
+            connection.sendMessage(message);
         } catch (Exception e) {
             e.printStackTrace();
         }
