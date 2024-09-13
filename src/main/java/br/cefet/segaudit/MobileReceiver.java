@@ -26,7 +26,6 @@ public class MobileReceiver implements NodeConnectionListener {
     private static int          gatewayPort  = 5500;
     private MrUdpNodeConnection connection;
     private UUID                myUUID;
-    private static final String SECRET_KEY = "segaudit12345678";
 
     private PrivateKey privateKey;
     private PublicKey publicKey;

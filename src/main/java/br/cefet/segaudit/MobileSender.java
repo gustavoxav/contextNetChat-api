@@ -23,9 +23,8 @@ public class MobileSender implements NodeConnectionListener {
     private static int          gatewayPort  = 5500;
     private MrUdpNodeConnection connection;
     private UUID                myUUID;
-    private static final String SECRET_KEY = "segaudit12345678";
 
-    private static final String RECEIVER_PUBLIC_KEY_BASE64 = "ADICIONAR_CHAVE_PUBLICA";
+    private static final String RECEIVER_PUBLIC_KEY_BASE64 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs+sETSs2GwowTWrU3gRXFaxgCeHDmgl4jXkvbudh/kxvq8hXx+SwWc+T0lvVxKVqyhSEOwykhqO+Qw5VaT9VWbm2aCP4whPekSg68AWuvzzokEzjZZA1WrK+JBfMPqgt7Nlih1rb9qTMk56Iv3z0m/j4LjJOSvaZGMeqlRiwF/Ppvpksbepj1hx+B6l0vReJcNLaYBGWTmoZ0bqSmZA5MJrUhagNFD0KegPAXVoK2ICFgtyW+m0UufWRmlgqXx0XV2FGlJALYPmgpekmg9/P9wU3MgSyZfB8BXhTcr2thZVfPVhhdG38i+76hfWSwoaQYGkmYQ3Kg+84poWwnXIjDQIDAQAB";
     
     public MobileSender() {
         myUUID = UUID.fromString("bb103877-8335-444a-be5f-db8d916f6754");
@@ -47,7 +46,6 @@ public class MobileSender implements NodeConnectionListener {
     }
 
     public String encrypt(String message, String publicKeyBase64) throws Exception {
-        // Converter a chave pública de Base64 para PublicKey
         byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
