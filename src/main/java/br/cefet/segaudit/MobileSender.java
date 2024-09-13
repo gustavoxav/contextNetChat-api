@@ -23,9 +23,9 @@ public class MobileSender implements NodeConnectionListener {
     private static int          gatewayPort  = 5500;
     private MrUdpNodeConnection connection;
     private UUID                myUUID;
-    private static final String SECRET_KEY = "segaudit12345678"; // Chave de 16 bytes (128 bits)
+    private static final String SECRET_KEY = "segaudit12345678";
 
-    private static final String RECEIVER_PUBLIC_KEY_BASE64 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp2689QS6X7xH6aUqZyZdXoBO+r9RlevFSkWnT0l5iPlWn8snCYYLMfUeeeP8gH5p5baSpgaajUA5ucvlMKrHN4SXj+ejbtgr+p/ojzcAEv8yQoJpKsWNxuohjpSrZt9cpTmC2qp1kTRkxzXabNt6asJy8xyy6lfrJRo8z8jbMnWGq5CzpdS1Api3la2bhFhEYET3dV7JWfufbbsEumoH4iGbHSBYm7CNerEFGO2BPxdUTAp2JI+fSKA46np7gv308qPuOE0yvJGDA4cG8DNEslWM9+wqOtlqxAJGnHPUzwz6qdj36qkGYeRDfezq/NQBzUUVJLvuzR/mXmMD2pfgCwIDAQAB";
+    private static final String RECEIVER_PUBLIC_KEY_BASE64 = "ADICIONAR_CHAVE_PUBLICA";
     
     public MobileSender() {
         myUUID = UUID.fromString("bb103877-8335-444a-be5f-db8d916f6754");
