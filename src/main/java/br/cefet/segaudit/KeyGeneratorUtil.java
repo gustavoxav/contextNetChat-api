@@ -28,7 +28,6 @@ public class KeyGeneratorUtil {
             PrivateKey privateKey = keyPair.getPrivate();
             PublicKey publicKey = keyPair.getPublic();
 
-            // Codifica as chaves no formato PEM para salvar corretamente
             String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n" +
                                    Base64.getEncoder().encodeToString(publicKey.getEncoded()) +
                                    "\n-----END PUBLIC KEY-----";

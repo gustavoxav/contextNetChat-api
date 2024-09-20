@@ -38,10 +38,8 @@ public class Comunicador implements NodeConnectionListener {
         this.receiverUUID = receiverUUID;
         this.receiverPublicKey = receiverPublicKey;
         
-        // Inicializa a interface gráfica
         EventQueue.invokeLater(() -> {
             messageApp = new MessageApp(this);
-            // Conexão com o servidor deve ocorrer após a criação da GUI
             InetSocketAddress address = new InetSocketAddress(server, port);
             try {
                 connection = new MrUdpNodeConnection(this.myUUID);
@@ -71,15 +69,12 @@ public class Comunicador implements NodeConnectionListener {
 
         Comunicador comunicador = new Comunicador(server, port, myUUID, myPrivateKey, receiverUUID, receiverPublicKey);
 
-        // Enviar uma mensagem de teste
         comunicador.sendMessage("Teste de comunicação segura!");
     }
 
-    // Método para carregar uma chave privada de um arquivo
     private static PrivateKey loadPrivateKey(String privateKeyFilePath) {
         try {
             String key = new String(Files.readAllBytes(Paths.get(privateKeyFilePath)));
-            // Remove os delimitadores PEM
             key = key.replace("-----BEGIN PRIVATE KEY-----", "")
                      .replace("-----END PRIVATE KEY-----", "")
                      .replaceAll("\\s", "");
@@ -93,11 +88,9 @@ public class Comunicador implements NodeConnectionListener {
         }
     }
 
-    // Método para carregar uma chave pública de um arquivo
     private static PublicKey loadPublicKey(String publicKeyFilePath) {
         try {
             String key = new String(Files.readAllBytes(Paths.get(publicKeyFilePath)));
-            // Remove os delimitadores PEM
             key = key.replace("-----BEGIN PUBLIC KEY-----", "")
                      .replace("-----END PUBLIC KEY-----", "")
                      .replaceAll("\\s", "");
@@ -111,7 +104,6 @@ public class Comunicador implements NodeConnectionListener {
         }
     }
 
-    // Método para criptografar uma mensagem usando a chave pública do destinatário
     public String encrypt(String message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, receiverPublicKey);
@@ -119,7 +111,6 @@ public class Comunicador implements NodeConnectionListener {
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    // Método para descriptografar uma mensagem recebida
     public String decrypt(String encryptedMessage) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, myPrivateKey);
@@ -127,7 +118,6 @@ public class Comunicador implements NodeConnectionListener {
         return new String(decryptedBytes);
     }
 
-    // Enviar uma mensagem
     public void sendMessage(String messageContent) {
         try {
             String encryptedMessage = encrypt(messageContent);
@@ -149,9 +139,9 @@ public class Comunicador implements NodeConnectionListener {
 
             String decryptedMessage = decrypt(encryptedMessage);
             System.out.println("Mensagem descriptografada: " + decryptedMessage);
-            // Atualiza a interface gráfica com a mensagem recebida
+
             EventQueue.invokeLater(() -> {
-            	messageApp.displayReceivedMessage("Destinatário: " + decryptedMessage + "\n");
+            	messageApp.displayReceivedMessage(decryptedMessage);
             });
             
         } catch (Exception e) {
