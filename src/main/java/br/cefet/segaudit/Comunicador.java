@@ -1,17 +1,21 @@
 package br.cefet.segaudit;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -31,12 +35,34 @@ public class Comunicador implements NodeConnectionListener {
     private UUID receiverUUID;
     private PublicKey receiverPublicKey;
     private MessageApp messageApp;
+    private String simetricKey;
+    private boolean isSimetricMode;
     
     public Comunicador(String server, int port, UUID myUUID, PrivateKey myPrivateKey, UUID receiverUUID, PublicKey receiverPublicKey) {
         this.myUUID = myUUID;
         this.myPrivateKey = myPrivateKey;
         this.receiverUUID = receiverUUID;
         this.receiverPublicKey = receiverPublicKey;
+        this.isSimetricMode = false; 
+        
+        EventQueue.invokeLater(() -> {
+            messageApp = new MessageApp(this);
+            InetSocketAddress address = new InetSocketAddress(server, port);
+            try {
+                connection = new MrUdpNodeConnection(this.myUUID);
+                connection.addNodeConnectionListener(this);
+                connection.connect(address);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public Comunicador(String server, int port, UUID myUUID, UUID receiverUUID, String key) {
+        this.myUUID = myUUID;
+        this.receiverUUID = receiverUUID;
+        this.simetricKey = key;
+        this.isSimetricMode = true;
         
         EventQueue.invokeLater(() -> {
             messageApp = new MessageApp(this);
@@ -59,19 +85,41 @@ public class Comunicador implements NodeConnectionListener {
         }
 
         Logger.getLogger("").setLevel(Level.ALL);
-
+        
         String server = args[1];
         int port = Integer.parseInt(args[2]);
+        
+        if ("run".equals(args[0])) {
         UUID myUUID = UUID.fromString(args[3]);
         PrivateKey myPrivateKey = loadPrivateKey(args[4]);
         UUID receiverUUID = UUID.fromString(args[5]);
         PublicKey receiverPublicKey = loadPublicKey(args[6]);
-
-        Comunicador comunicador = new Comunicador(server, port, myUUID, myPrivateKey, receiverUUID, receiverPublicKey);
-
-        comunicador.sendMessage("Teste de comunicação segura!");
+        
+        new Comunicador(server, port, myUUID, myPrivateKey, receiverUUID, receiverPublicKey);
+        } else if ("runSimetric".equals(args[0])) {
+            UUID myUUID = UUID.fromString(args[3]);
+            UUID receiverUUID = UUID.fromString(args[4]);
+            String simetricKey = args[5];
+            new Comunicador(server, port, myUUID, receiverUUID, simetricKey);
+        }
     }
 
+    public String encryptSimetric(String message) throws Exception {
+        SecretKeySpec key = new SecretKeySpec(this.simetricKey.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedBytes = cipher.doFinal(message.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public String decryptSimetric(String encryptedMessage) throws Exception {
+    	SecretKeySpec key = new SecretKeySpec(this.simetricKey.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decryptedBytes = Base64.getDecoder().decode(encryptedMessage);
+        return new String(cipher.doFinal(decryptedBytes));
+    }
+    
     private static PrivateKey loadPrivateKey(String privateKeyFilePath) {
         try {
             String key = new String(Files.readAllBytes(Paths.get(privateKeyFilePath)));
@@ -104,14 +152,14 @@ public class Comunicador implements NodeConnectionListener {
         }
     }
 
-    public String encrypt(String message) throws Exception {
+    public String encryptAsymmetric(String message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, receiverPublicKey);
         byte[] encryptedBytes = cipher.doFinal(message.getBytes());
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    public String decrypt(String encryptedMessage) throws Exception {
+    public String decryptAsymmetric(String encryptedMessage) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, myPrivateKey);
         byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
@@ -120,7 +168,12 @@ public class Comunicador implements NodeConnectionListener {
 
     public void sendMessage(String messageContent) {
         try {
-            String encryptedMessage = encrypt(messageContent);
+        	String encryptedMessage;
+            if (isSimetricMode) {
+                encryptedMessage = encryptSimetric(messageContent);  // Usa a criptografia simétrica
+            } else {
+                encryptedMessage = encryptAsymmetric(messageContent);  // Usa a criptografia assimétrica
+            }
             ApplicationMessage message = new ApplicationMessage();
             message.setContentObject(encryptedMessage);
             message.setRecipientID(receiverUUID);
@@ -137,7 +190,13 @@ public class Comunicador implements NodeConnectionListener {
             String encryptedMessage = (String) message.getContentObject();
             System.out.println("Mensagem criptografada recebida: " + encryptedMessage);
 
-            String decryptedMessage = decrypt(encryptedMessage);
+            String decryptedMessage;
+            if (isSimetricMode) {
+                decryptedMessage = decryptSimetric(encryptedMessage);
+            } else {
+                decryptedMessage = decryptAsymmetric(encryptedMessage);
+            }
+            
             System.out.println("Mensagem descriptografada: " + decryptedMessage);
 
             EventQueue.invokeLater(() -> {
