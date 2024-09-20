@@ -19,10 +19,15 @@ Desenvolver uma solução de comunicação segura dentro da rede **ContextNet**,
    ```bash
    git clone https://github.com/seu-usuario/contextnet-encrypt.git
    
-2. Execute primeiro o arquivo MobileReceiver.java como javaApplication;
+2. Para gerar as chave públicas e privadas dos comunicadores, rode o comando abaixo no diretório do projeto. Esse comando gera dois arquivos, um para cada chave, que serão utilizadas posteriormente para realizar a comunicação entre os comunicadores;
+   ```bash
+   java -jar appKeys.jar generateKeys [nome-do-arquivo]
 
-3. Por fim, execute o MobileSender.java como javaApplication e a mensagem deve ser exibida no console.
+3. Para rodar esse comando é necessário já ter os arquivos de chave privada e pública já gerados para os dois comunicados do sistema. Tendo essas chaves em mãos, rode o seguinte comando para poder inicializa-los no sistema ContextNet. Nesse caso, o "sender" é o para o comunicador quie irá se registrar, e o "receiver" são os dados para qual vamos estabelecer a conexão.
+   ```bash
+   java -jar app.jar run [servidor] [porta] [uuid-sender] [privateKey-sender] [uuid-receiver] [receiver-publicKey]
 
+   
 ## Futuras Implementações
 - Melhorias na interface de usuário.
 - Implementação de novos algoritmos de criptografia.
