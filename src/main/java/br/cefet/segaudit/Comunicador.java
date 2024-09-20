@@ -1,6 +1,8 @@
 package br.cefet.segaudit;
 
 import javax.crypto.Cipher;
+
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -28,22 +30,29 @@ public class Comunicador implements NodeConnectionListener {
     private PrivateKey myPrivateKey;
     private UUID receiverUUID;
     private PublicKey receiverPublicKey;
-
+    private MessageApp messageApp;
+    
     public Comunicador(String server, int port, UUID myUUID, PrivateKey myPrivateKey, UUID receiverUUID, PublicKey receiverPublicKey) {
         this.myUUID = myUUID;
         this.myPrivateKey = myPrivateKey;
         this.receiverUUID = receiverUUID;
         this.receiverPublicKey = receiverPublicKey;
-
-        InetSocketAddress address = new InetSocketAddress(server, port);
-        try {
-            connection = new MrUdpNodeConnection(this.myUUID);
-            connection.addNodeConnectionListener(this);
-            connection.connect(address);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
+        // Inicializa a interface gráfica
+        EventQueue.invokeLater(() -> {
+            messageApp = new MessageApp(this);
+            // Conexão com o servidor deve ocorrer após a criação da GUI
+            InetSocketAddress address = new InetSocketAddress(server, port);
+            try {
+                connection = new MrUdpNodeConnection(this.myUUID);
+                connection.addNodeConnectionListener(this);
+                connection.connect(address);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
+    
 
     public static void main(String[] args) {
         if (args.length < 6) {
@@ -69,7 +78,13 @@ public class Comunicador implements NodeConnectionListener {
     // Método para carregar uma chave privada de um arquivo
     private static PrivateKey loadPrivateKey(String privateKeyFilePath) {
         try {
-            byte[] keyBytes = Files.readAllBytes(Paths.get(privateKeyFilePath));
+            String key = new String(Files.readAllBytes(Paths.get(privateKeyFilePath)));
+            // Remove os delimitadores PEM
+            key = key.replace("-----BEGIN PRIVATE KEY-----", "")
+                     .replace("-----END PRIVATE KEY-----", "")
+                     .replaceAll("\\s", "");
+
+            byte[] keyBytes = Base64.getDecoder().decode(key);
             PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(spec);
@@ -81,7 +96,13 @@ public class Comunicador implements NodeConnectionListener {
     // Método para carregar uma chave pública de um arquivo
     private static PublicKey loadPublicKey(String publicKeyFilePath) {
         try {
-            byte[] keyBytes = Files.readAllBytes(Paths.get(publicKeyFilePath));
+            String key = new String(Files.readAllBytes(Paths.get(publicKeyFilePath)));
+            // Remove os delimitadores PEM
+            key = key.replace("-----BEGIN PUBLIC KEY-----", "")
+                     .replace("-----END PUBLIC KEY-----", "")
+                     .replaceAll("\\s", "");
+
+            byte[] keyBytes = Base64.getDecoder().decode(key);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePublic(spec);
@@ -128,6 +149,11 @@ public class Comunicador implements NodeConnectionListener {
 
             String decryptedMessage = decrypt(encryptedMessage);
             System.out.println("Mensagem descriptografada: " + decryptedMessage);
+            // Atualiza a interface gráfica com a mensagem recebida
+            EventQueue.invokeLater(() -> {
+            	messageApp.displayReceivedMessage("Destinatário: " + decryptedMessage + "\n");
+            });
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -12,7 +12,7 @@ public class KeyGeneratorUtil {
 
     public static void main(String[] args) {
         if (args.length < 2 || !args[0].equalsIgnoreCase("generateKeys")) {
-            System.out.println("Uso correto: java -jar app.jar generateKeys [nome do arquivo]");
+            System.out.println("Uso correto: java -jar appKeys.jar generateKeys [nome da chave]");
             return;
         }
 
@@ -28,11 +28,17 @@ public class KeyGeneratorUtil {
             PrivateKey privateKey = keyPair.getPrivate();
             PublicKey publicKey = keyPair.getPublic();
 
-            String publicKeyEncoded = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-            String privateKeyEncoded = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+            // Codifica as chaves no formato PEM para salvar corretamente
+            String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n" +
+                                   Base64.getEncoder().encodeToString(publicKey.getEncoded()) +
+                                   "\n-----END PUBLIC KEY-----";
+            
+            String privateKeyPEM = "-----BEGIN PRIVATE KEY-----\n" +
+                                    Base64.getEncoder().encodeToString(privateKey.getEncoded()) +
+                                    "\n-----END PRIVATE KEY-----";
 
-            saveKeyToFile(filename + ".publicKey", publicKeyEncoded);
-            saveKeyToFile(filename + ".privateKey", privateKeyEncoded);
+            saveKeyToFile(filename + ".publicKey", publicKeyPEM);
+            saveKeyToFile(filename + ".privateKey", privateKeyPEM);
 
             System.out.println("Chaves geradas e salvas com sucesso.");
         } catch (Exception e) {
