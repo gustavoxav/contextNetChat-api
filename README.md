@@ -32,6 +32,12 @@ Exemplo de comandos:
    java -jar target/app.jar sender bsi.cefet-rj.br 5500 cc2528b7-fecc-43dd-a1c6-188546f0ccbf 641f18ae-6c0c-45c2-972f-d37c309a9b72
    java -jar target/app.jar receiver bsi.cefet-rj.br 5500 641f18ae-6c0c-45c2-972f-d37c309a9b72
 
+Exemplo de mensagens:
+   ```bash
+   <mid1,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,askOne,641f18ae-6c0c-45c2-972f-d37c309a9b72,numeroDaSorte(N)>
+   <mid1,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,tell,641f18ae-6c0c-45c2-972f-d37c309a9b72,numeroDaSorte(3333)>
+
+
 ## Futuras Implementações
 - Melhorias na interface de usuário.
 - Implementação de novos algoritmos de criptografia.

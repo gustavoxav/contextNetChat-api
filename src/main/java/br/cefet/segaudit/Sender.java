@@ -17,7 +17,6 @@ public class Sender implements NodeConnectionListener {
     private MrUdpNodeConnection connection;
     private UUID myUUID;
     private UUID destinationUUID;
-    private String messageToSend;
     private MessageApp messageApp;
 
     public Sender(String server, int port, UUID myUUID, UUID destinationUUID) {
@@ -53,17 +52,27 @@ public class Sender implements NodeConnectionListener {
         }
     }
 
-    public void sendMessage(String messageContent) {
-        try {
-            System.out.println("SENDING...: " + destinationUUID);
+    public void sendMessage(String msg) {
 
-            ApplicationMessage message = new ApplicationMessage();
-            message.setContentObject(messageContent);
-            message.setRecipientID(destinationUUID);
+        InetSocketAddress address = new InetSocketAddress(getGatewayIP(), getGatewayPort());
+        try {
+            connection = new MrUdpNodeConnection(getMyUUID());
+            connection.addNodeConnectionListener(this);
+            connection.connect(address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ApplicationMessage message = new ApplicationMessage();
+        System.out.println("SENDING...: " + getDestinationUUID());
+        System.out.println("Mensagem enviada: " + msg);
+        System.out.println("Meu UUID: " + getMyUUID());
+        message.setContentObject(msg);
+        message.setRecipientID(getDestinationUUID());
+
+        try {
             connection.sendMessage(message);
-            System.out.println("Receiver: " + destinationUUID);
-            System.out.println("Mensagem enviada: " + messageContent);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

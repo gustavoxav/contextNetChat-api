@@ -23,7 +23,8 @@ public class Main {
         if (mode.equalsIgnoreCase("receiver")) {
             System.out.println("Uso receiver:");
 
-            new Receiver(server, port, myUUID);
+            Receiver rec = new Receiver(server, port, myUUID);
+            rec.listen();
         } else if (mode.equalsIgnoreCase("sender")) {
             if (args.length < 5) {
                 System.out.println("Uso incorreto do modo sender:");
