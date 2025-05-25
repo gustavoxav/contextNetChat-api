@@ -6,12 +6,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MessageApp {
-    private Comunicador comunicador;
+    private Sender sender;
     private JTextArea messageArea;
     private JTextField inputField;
 
-    public MessageApp(Comunicador comunicador) {
-        this.comunicador = comunicador;
+    public MessageApp(Sender sender) {
+        this.sender = sender;
+        createAndShowGUI();
+    }
+
+    public MessageApp() {
         createAndShowGUI();
     }
 
@@ -44,7 +48,9 @@ public class MessageApp {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String message = inputField.getText();
-                comunicador.sendMessage(message);
+                if (MessageApp.this.sender != null) {
+                    sender.sendMessage(message);
+                }
                 messageArea.append("Voce: " + message + "\n");
                 inputField.setText("");
             }

@@ -27,10 +27,15 @@ Desenvolver uma solução de comunicação segura dentro da rede **ContextNet**,
    ```bash
    java -jar app.jar run [servidor] [porta] [uuid-sender] [privateKey-sender] [uuid-receiver] [receiver-publicKey]
 
-   
+Exemplo de comandos:
+   ```bash
+   java -jar target/app.jar sender bsi.cefet-rj.br 5500 cc2528b7-fecc-43dd-a1c6-188546f0ccbf 641f18ae-6c0c-45c2-972f-d37c309a9b72
+   java -jar target/app.jar receiver bsi.cefet-rj.br 5500 641f18ae-6c0c-45c2-972f-d37c309a9b72
+
 ## Futuras Implementações
 - Melhorias na interface de usuário.
 - Implementação de novos algoritmos de criptografia.
 - Auditoria de segurança automatizada.
+
 
 ## CEFET-RJ, Sistemas de Informação

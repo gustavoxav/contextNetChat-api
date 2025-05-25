@@ -21,6 +21,8 @@ public class Main {
         UUID myUUID = UUID.fromString(args[3]);
 
         if (mode.equalsIgnoreCase("receiver")) {
+            System.out.println("Uso receiver:");
+
             new Receiver(server, port, myUUID);
         } else if (mode.equalsIgnoreCase("sender")) {
             if (args.length < 5) {

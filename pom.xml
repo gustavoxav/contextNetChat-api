@@ -43,7 +43,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>br.cefet.segaudit.Comunicador</mainClass>
+              <mainClass>br.cefet.segaudit.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

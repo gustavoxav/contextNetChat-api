@@ -12,16 +12,21 @@ import lac.cnclib.sddl.message.ApplicationMessage;
 import lac.cnclib.sddl.message.Message;
 
 public class Sender implements NodeConnectionListener {
+    private static String gatewayIP;
+    private static int gatewayPort;
     private MrUdpNodeConnection connection;
     private UUID myUUID;
-    private UUID receiverUUID;
+    private UUID destinationUUID;
     private String messageToSend;
     private MessageApp messageApp;
 
-    public Sender(String server, int port, UUID myUUID, UUID receiverUUID) {
+    public Sender(String server, int port, UUID myUUID, UUID destinationUUID) {
         this.myUUID = myUUID;
-        this.receiverUUID = receiverUUID;
-
+        setDestinationUUID(destinationUUID);
+        setGatewayIP(server);
+        setGatewayPort(port);
+        System.out.println("Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
+                + destinationUUID);
         // connect(server, port);
         EventQueue.invokeLater(() -> {
             messageApp = new MessageApp(this);
@@ -36,31 +41,27 @@ public class Sender implements NodeConnectionListener {
         });
     }
 
-    private void connect(String server, int port) {
-        EventQueue.invokeLater(() -> {
-            InetSocketAddress address = new InetSocketAddress(server, port);
-            try {
-                connection = new MrUdpNodeConnection(this.myUUID);
-                connection.addNodeConnectionListener(this);
-                connection.connect(address);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
     @Override
     public void connected(NodeConnection remoteCon) {
-        System.out.println("Conectado ao servidor!");
+        ApplicationMessage message = new ApplicationMessage();
+        message.setContentObject("Registering");
+
+        try {
+            connection.sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(String messageContent) {
         try {
+            System.out.println("SENDING...: " + destinationUUID);
+
             ApplicationMessage message = new ApplicationMessage();
             message.setContentObject(messageContent);
-            message.setRecipientID(receiverUUID);
+            message.setRecipientID(destinationUUID);
             connection.sendMessage(message);
-            System.out.println("Receiver: " + receiverUUID);
+            System.out.println("Receiver: " + destinationUUID);
             System.out.println("Mensagem enviada: " + messageContent);
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,6 +71,8 @@ public class Sender implements NodeConnectionListener {
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
+            System.out.println("Confirmação: " + message.getContentObject());
+
             String received = (String) message.getContentObject();
             System.out.println("Mensagem recebida: " + received);
             EventQueue.invokeLater(() -> {
@@ -78,6 +81,39 @@ public class Sender implements NodeConnectionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public UUID getDestinationUUID() {
+        return destinationUUID;
+    }
+
+    public void setDestinationUUID(UUID strDestinationUUID) {
+        this.destinationUUID = strDestinationUUID;
+    }
+
+    public static String getGatewayIP() {
+        return gatewayIP;
+    }
+
+    public static void setGatewayIP(String gatewayIP) {
+        Sender.gatewayIP = gatewayIP;
+    }
+
+    public static int getGatewayPort() {
+        return gatewayPort;
+    }
+
+    public static void setGatewayPort(int gatewayPort) {
+        Sender.gatewayPort = gatewayPort;
+    }
+
+    public UUID getMyUUID() {
+        return myUUID;
+    }
+
+    public void setMyUUID(String strMyUUID) {
+        this.myUUID = UUID.fromString(strMyUUID);
+        ;
     }
 
     @Override

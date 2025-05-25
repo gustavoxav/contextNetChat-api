@@ -12,57 +12,85 @@ import lac.cnclib.sddl.message.ApplicationMessage;
 import lac.cnclib.sddl.message.Message;
 
 public class Receiver implements NodeConnectionListener {
-    
+
+    private static String gatewayIP;
+    private static int gatewayPort;
     private MrUdpNodeConnection connection;
     private UUID myUUID;
     private MessageApp messageApp;
 
     public Receiver(String server, int port, UUID myUUID) {
         this.myUUID = myUUID;
+        setGatewayIP(server);
+        setGatewayPort(port);
 
         // connect(server, port);
         EventQueue.invokeLater(() -> {
-            messageApp = new MessageApp(this);
+            messageApp = new MessageApp();
             InetSocketAddress address = new InetSocketAddress(server, port);
             try {
                 connection = new MrUdpNodeConnection(this.myUUID);
                 connection.addNodeConnectionListener(this);
                 connection.connect(address);
+                System.out.println("Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    @Override
     public void connected(NodeConnection remoteCon) {
-        System.out.println("Receiver conectado ao servidor!");
-    }
+        ApplicationMessage message = new ApplicationMessage();
+        message.setContentObject("Registering");
 
-    public void sendMessage(String messageContent) {
-        // try {
-        // ApplicationMessage message = new ApplicationMessage();
-        // message.setContentObject(messageContent);
-        // message.setRecipientID(receiverUUID);
-        // connection.sendMessage(message);
-        // System.out.println("Receiver: " + receiverUUID);
-        // System.out.println("Mensagem enviada: " + messageContent);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+        try {
+            connection.sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
+        String received = (String) message.getContentObject();
+        System.out.println("Mensagem Recebida: " + received);
+
+        ApplicationMessage appMessage = new ApplicationMessage();
+        appMessage.setContentObject("Mensagem de confirmação de recepção no destino!");
+        appMessage.setRecipientID(message.getSenderID());
+
         try {
-            String received = (String) message.getContentObject();
-            System.out.println("Mensagem recebida: " + received);
+            connection.sendMessage(appMessage);
             EventQueue.invokeLater(() -> {
                 messageApp.displayReceivedMessage(received);
             });
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getGatewayIP() {
+        return gatewayIP;
+    }
+
+    public static void setGatewayIP(String gatewayIP) {
+        Receiver.gatewayIP = gatewayIP;
+    }
+
+    public static int getGatewayPort() {
+        return gatewayPort;
+    }
+
+    public static void setGatewayPort(int gatewayPort) {
+        Receiver.gatewayPort = gatewayPort;
+    }
+
+    public UUID getMyUUID() {
+        return myUUID;
+    }
+
+    public void setMyUUID(String strMyUUID) {
+        this.myUUID = UUID.fromString(strMyUUID);
     }
 
     @Override
@@ -76,6 +104,10 @@ public class Receiver implements NodeConnectionListener {
 
     @Override
     public void unsentMessages(NodeConnection remoteCon, java.util.List<Message> unsentMessages) {
+        System.out.println("Unsent messages: " + unsentMessages.size());
+        for (Message msg : unsentMessages) {
+            System.out.println("Unsent message: " + msg.getContentObject());
+        }
     }
 
     @Override
