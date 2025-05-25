@@ -23,8 +23,8 @@
   </repositories>
 
   <build>
+    <finalName>app</finalName>
     <plugins>
-      <!-- Plugin para compilar o código Java -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
