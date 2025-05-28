@@ -24,19 +24,20 @@ public class Receiver implements NodeConnectionListener {
         setGatewayIP(server);
         setGatewayPort(port);
 
-        // connect(server, port);
         EventQueue.invokeLater(() -> {
             messageApp = new MessageApp();
-            InetSocketAddress address = new InetSocketAddress(server, port);
-            try {
-                connection = new MrUdpNodeConnection(this.myUUID);
-                connection.addNodeConnectionListener(this);
-                connection.connect(address);
-                System.out.println("Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         });
+    }
+
+    public void listen() {
+        InetSocketAddress address = new InetSocketAddress(getGatewayIP(), getGatewayPort());
+        try {
+            connection = new MrUdpNodeConnection(getMyUUID());
+            connection.addNodeConnectionListener(this);
+            connection.connect(address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void connected(NodeConnection remoteCon) {
@@ -53,7 +54,7 @@ public class Receiver implements NodeConnectionListener {
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         String received = (String) message.getContentObject();
-        System.out.println("Mensagem Recebida: " + received);
+        System.out.println("Mensagem Recebida: " + message.getContentObject());
 
         ApplicationMessage appMessage = new ApplicationMessage();
         appMessage.setContentObject("Mensagem de confirmação de recepção no destino!");
@@ -68,6 +69,25 @@ public class Receiver implements NodeConnectionListener {
             e.printStackTrace();
         }
     }
+
+    // public void newMessageReceived(NodeConnection remoteCon, Message message) {
+    // String received = (String) message.getContentObject();
+    // System.out.println("Mensagem Recebida: " + received);
+
+    // ApplicationMessage appMessage = new ApplicationMessage();
+    // appMessage.setContentObject("Mensagem de confirmação de recepção no
+    // destino!");
+    // appMessage.setRecipientID(message.getSenderID());
+
+    // try {
+    // connection.sendMessage(appMessage);
+    // EventQueue.invokeLater(() -> {
+    // messageApp.displayReceivedMessage(received);
+    // });
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // }
 
     public static String getGatewayIP() {
         return gatewayIP;
