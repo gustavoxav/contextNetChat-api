@@ -9,6 +9,16 @@
             "projectName": "contextnet-encrypt",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SegAudit<contextnet-encrypt>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "br.cefet.segaudit.SegAudit",
+            "projectName": "contextnet-encrypt",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
