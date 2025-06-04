@@ -1,6 +1,8 @@
+br\cefet\segaudit\MessageApp$1.class
+br\cefet\segaudit\controller\ContextNetWebSocketHandler.class
 br\cefet\segaudit\MessageApp.class
 br\cefet\segaudit\Receiver.class
-br\cefet\segaudit\Comunicador.class
+br\cefet\segaudit\config\WebSocketConfig.class
 br\cefet\segaudit\Sender.class
-br\cefet\segaudit\Main.class
-br\cefet\segaudit\MessageApp$1.class
+br\cefet\segaudit\service\ContextNetService.class
+br\cefet\segaudit\SegAudit.class

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Main<contextnet-encrypt>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "br.cefet.segaudit.Main",
+            "projectName": "contextnet-encrypt",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
