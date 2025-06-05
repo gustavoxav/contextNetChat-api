@@ -25,26 +25,38 @@ public class ContextNetService implements NodeConnectionListener {
 
     public ContextNetService() {
         try {
+            System.out.println("Conectando ao gateway " + gatewayIP + gatewayPort + "De: " + myUUID + " - Para: "
+                    + destinationUUID);
             InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
             connection = new MrUdpNodeConnection(myUUID);
             connection.addNodeConnectionListener(this);
-            System.out.println("Conectando ao gateway " + myUUID + " e destino: " + destinationUUID);
             connection.connect(address);
+
+            ApplicationMessage appMessage = new ApplicationMessage();
+            String payload = "<mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(63626)>";
+            System.out.println("SENDING...: " + destinationUUID);
+            System.out.println("Mensagem enviada: " + payload);
+            System.out.println("Meu UUID: " + myUUID);
+            appMessage.setContentObject(payload);
+            appMessage.setRecipientID(destinationUUID);
+            System.out.println("Enviando mensagem para ContextNet: " + payload + " para " + destinationUUID);
+
+            connection.sendMessage(appMessage);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void registerSession(WebSocketSession session) {
-        // this.currentSession = session;
-        // sendToContextNet("Conexão registrada via WebSocket");
+        this.currentSession = session;
+        sendToContextNet("Conexão registrada via WebSocket");
     }
 
     public void unregisterSession(WebSocketSession session) {
         System.out.println("Desconectando sessão WebSocket: " + session.getId());
-        // if (session == this.currentSession) {
-        // this.currentSession = null;
-        // }
+        if (session == this.currentSession) {
+            this.currentSession = null;
+        }
     }
 
     public void processIncomingMessage(WebSocketSession session, String payload) {
@@ -53,6 +65,7 @@ public class ContextNetService implements NodeConnectionListener {
     }
 
     private void sendToContextNet(String payload) {
+        System.out.println("Enviando mensagem: " + payload + " para o ContextNet");
 
         InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
         try {
@@ -64,6 +77,9 @@ public class ContextNetService implements NodeConnectionListener {
         }
 
         ApplicationMessage appMessage = new ApplicationMessage();
+        System.out.println("SENDING...: " + destinationUUID);
+        System.out.println("Mensagem enviada: " + payload);
+        System.out.println("Meu UUID: " + myUUID);
         appMessage.setContentObject(payload);
         appMessage.setRecipientID(destinationUUID);
         System.out.println("Enviando mensagem para ContextNet: " + payload + " para " + destinationUUID);
@@ -92,7 +108,7 @@ public class ContextNetService implements NodeConnectionListener {
     @Override
     public void connected(NodeConnection remoteCon) {
         ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("Registering");
+        message.setContentObject("Registering: ");
 
         try {
             connection.sendMessage(message);
