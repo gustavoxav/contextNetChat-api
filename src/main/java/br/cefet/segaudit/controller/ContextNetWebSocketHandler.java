@@ -1,32 +1,48 @@
 package br.cefet.segaudit.controller;
 
+import br.cefet.segaudit.service.ContextNetClient;
 import br.cefet.segaudit.service.ContextNetService;
+
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 @Component
 public class ContextNetWebSocketHandler extends TextWebSocketHandler {
+    private final ContextNetClient contextNetClient;
+    private final CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
-    private final ContextNetService contextNetService;
-
-    public ContextNetWebSocketHandler(ContextNetService contextNetService) {
-        this.contextNetService = contextNetService;
+    public ContextNetWebSocketHandler(ContextNetClient contextNetClient) {
+        this.contextNetClient = contextNetClient;
+        this.contextNetClient.setMessageHandler(this::broadcastMessageToAll);
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
-        System.out.println("Conexão WebSocket estabelecida: " + session.getId());
-        contextNetService.registerSession(session);
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session);
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        contextNetService.processIncomingMessage(session, message.getPayload());
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        sessions.remove(session);
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        contextNetService.unregisterSession(session);
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        contextNetClient.sendToContextNet(message.getPayload());
+    }
+
+    private void broadcastMessageToAll(String msg) {
+        for (WebSocketSession session : sessions) {
+            if (session.isOpen()) {
+                try {
+                    session.sendMessage(new TextMessage(msg));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

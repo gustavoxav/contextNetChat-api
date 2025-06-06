@@ -1,9 +1,9 @@
 package br.cefet.segaudit;
 
-import java.awt.EventQueue;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import lac.cnclib.net.NodeConnection;
 import lac.cnclib.net.NodeConnectionListener;
@@ -12,38 +12,36 @@ import lac.cnclib.sddl.message.ApplicationMessage;
 import lac.cnclib.sddl.message.Message;
 
 public class Sender implements NodeConnectionListener {
-    private static String gatewayIP;
-    private static int gatewayPort;
+    private String gatewayIP;
+    private int gatewayPort;
     private MrUdpNodeConnection connection;
     private UUID myUUID;
     private UUID destinationUUID;
-    private MessageApp messageApp;
+    private Consumer<String> onMessageReceived;
 
-    public Sender(String server, int port, UUID myUUID, UUID destinationUUID) {
+    public Sender(String server, int port, UUID myUUID, UUID destinationUUID, Consumer<String> onMessageReceived) {
         this.myUUID = myUUID;
-        setDestinationUUID(destinationUUID);
-        setGatewayIP(server);
-        setGatewayPort(port);
-        System.out.println("Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
+        this.destinationUUID = destinationUUID;
+        this.gatewayIP = server;
+        this.gatewayPort = port;
+        this.onMessageReceived = onMessageReceived;
+        System.out.println("IN SENDER Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
                 + destinationUUID);
-        // connect(server, port);
-        EventQueue.invokeLater(() -> {
-            messageApp = new MessageApp(this);
-            InetSocketAddress address = new InetSocketAddress(server, port);
-            try {
-                connection = new MrUdpNodeConnection(this.myUUID);
-                connection.addNodeConnectionListener(this);
-                connection.connect(address);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+
+        InetSocketAddress address = new InetSocketAddress(server, port);
+        try {
+            connection = new MrUdpNodeConnection(this.myUUID);
+            connection.addNodeConnectionListener(this);
+            connection.connect(address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void connected(NodeConnection remoteCon) {
         ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("Registering");
+        message.setContentObject("IN SENDER Registering");
 
         try {
             connection.sendMessage(message);
@@ -53,20 +51,18 @@ public class Sender implements NodeConnectionListener {
     }
 
     public void sendMessage(String msg) {
-
-        InetSocketAddress address = new InetSocketAddress(getGatewayIP(), getGatewayPort());
-        try {
-            connection = new MrUdpNodeConnection(getMyUUID());
-            connection.addNodeConnectionListener(this);
-            connection.connect(address);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        // InetSocketAddress address = new InetSocketAddress(this.gatewayIP, this.gatewayPort);
+        // try {
+        // connection = new MrUdpNodeConnection(getMyUUID());
+        // connection.addNodeConnectionListener(this);
+        // connection.connect(address);
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
         ApplicationMessage message = new ApplicationMessage();
-        System.out.println("SENDING...: " + getDestinationUUID());
-        System.out.println("Mensagem enviada: " + msg);
-        System.out.println("Meu UUID: " + getMyUUID());
+        System.out.println("IN SENDER SENDING TO...: " + getDestinationUUID());
+        System.out.println("IN SENDER Meu UUID: " + getMyUUID());
+        System.out.println("IN SENDER Mensagem enviada: " + msg);
         message.setContentObject(msg);
         message.setRecipientID(getDestinationUUID());
 
@@ -83,10 +79,10 @@ public class Sender implements NodeConnectionListener {
             System.out.println("Confirmação: " + message.getContentObject());
 
             String received = (String) message.getContentObject();
-            System.out.println("Mensagem recebida: " + received);
-            EventQueue.invokeLater(() -> {
-                messageApp.displayReceivedMessage(received);
-            });
+            System.out.println("IN SENDER Mensagem recebida: " + received);
+            if (onMessageReceived != null) {
+                onMessageReceived.accept(received);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -100,29 +96,12 @@ public class Sender implements NodeConnectionListener {
         this.destinationUUID = strDestinationUUID;
     }
 
-    public static String getGatewayIP() {
-        return gatewayIP;
-    }
-
-    public static void setGatewayIP(String gatewayIP) {
-        Sender.gatewayIP = gatewayIP;
-    }
-
-    public static int getGatewayPort() {
-        return gatewayPort;
-    }
-
-    public static void setGatewayPort(int gatewayPort) {
-        Sender.gatewayPort = gatewayPort;
-    }
-
     public UUID getMyUUID() {
         return myUUID;
     }
 
     public void setMyUUID(String strMyUUID) {
         this.myUUID = UUID.fromString(strMyUUID);
-        ;
     }
 
     @Override

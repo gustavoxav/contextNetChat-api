@@ -18,30 +18,23 @@ public class ContextNetService implements NodeConnectionListener {
 
     private MrUdpNodeConnection connection;
     private WebSocketSession currentSession;
+
     private final UUID myUUID = UUID.fromString("cc2528b7-fecc-43dd-a1c6-188546f0ccbf");
     private final UUID destinationUUID = UUID.fromString("641f18ae-6c0c-45c2-972f-d37c309a9b72");
-    private static String gatewayIP = "bsi.cefet-rj.br";
-    private static int gatewayPort = 5500;
+
+    private static final String gatewayIP = "bsi.cefet-rj.br";
+    private static final int gatewayPort = 5500;
 
     public ContextNetService() {
         try {
-            System.out.println("Conectando ao gateway " + gatewayIP + gatewayPort + "De: " + myUUID + " - Para: "
-                    + destinationUUID);
             InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
+            System.out.println("Conectando ao gateway " + gatewayIP + ":" + gatewayPort);
+            System.out.println("De: " + myUUID + " - Para: " + destinationUUID);
+
             connection = new MrUdpNodeConnection(myUUID);
             connection.addNodeConnectionListener(this);
             connection.connect(address);
 
-            ApplicationMessage appMessage = new ApplicationMessage();
-            String payload = "<mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(63626)>";
-            System.out.println("SENDING...: " + destinationUUID);
-            System.out.println("Mensagem enviada: " + payload);
-            System.out.println("Meu UUID: " + myUUID);
-            appMessage.setContentObject(payload);
-            appMessage.setRecipientID(destinationUUID);
-            System.out.println("Enviando mensagem para ContextNet: " + payload + " para " + destinationUUID);
-
-            connection.sendMessage(appMessage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,6 +42,7 @@ public class ContextNetService implements NodeConnectionListener {
 
     public void registerSession(WebSocketSession session) {
         this.currentSession = session;
+        System.out.println("Sessão WebSocket registrada: " + session.getId());
         sendToContextNet("Conexão registrada via WebSocket");
     }
 
@@ -60,28 +54,20 @@ public class ContextNetService implements NodeConnectionListener {
     }
 
     public void processIncomingMessage(WebSocketSession session, String payload) {
-        System.out.println("Processando mensagem recebida: " + payload);
+        System.out.println("Mensagem recebida do WebSocket: " + payload);
         sendToContextNet(payload);
     }
 
     private void sendToContextNet(String payload) {
-        System.out.println("Enviando mensagem: " + payload + " para o ContextNet");
-
-        InetSocketAddress address = new InetSocketAddress(gatewayIP, gatewayPort);
-        try {
-            connection = new MrUdpNodeConnection(myUUID);
-            connection.addNodeConnectionListener(this);
-            connection.connect(address);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (connection == null) {
+            System.err.println("Erro: conexão com o ContextNet não está ativa.");
+            return;
         }
 
         ApplicationMessage appMessage = new ApplicationMessage();
-        System.out.println("SENDING...: " + destinationUUID);
-        System.out.println("Mensagem enviada: " + payload);
-        System.out.println("Meu UUID: " + myUUID);
         appMessage.setContentObject(payload);
         appMessage.setRecipientID(destinationUUID);
+
         System.out.println("Enviando mensagem para ContextNet: " + payload + " para " + destinationUUID);
         try {
             connection.sendMessage(appMessage);
@@ -90,13 +76,16 @@ public class ContextNetService implements NodeConnectionListener {
         }
     }
 
+    // ===============================================================
+    // Implementações do NodeConnectionListener
+    // ===============================================================
+
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
-            System.out.println("Confirmação: " + message.getContentObject());
-
             String content = (String) message.getContentObject();
             System.out.println("Mensagem recebida do ContextNet: " + content);
+
             if (currentSession != null && currentSession.isOpen()) {
                 currentSession.sendMessage(new TextMessage("Recebido do ContextNet: " + content));
             }
@@ -107,8 +96,9 @@ public class ContextNetService implements NodeConnectionListener {
 
     @Override
     public void connected(NodeConnection remoteCon) {
+        System.out.println("Conectado ao ContextNet.");
         ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("Registering: ");
+        message.setContentObject("Registering");
 
         try {
             connection.sendMessage(message);
@@ -119,18 +109,23 @@ public class ContextNetService implements NodeConnectionListener {
 
     @Override
     public void disconnected(NodeConnection remoteCon) {
+        System.out.println("Desconectado do ContextNet.");
     }
 
     @Override
-    public void reconnected(NodeConnection remoteCon, java.net.SocketAddress endPoint, boolean wasHandover,
-            boolean wasMandatory) {
+    public void reconnected(NodeConnection remoteCon, java.net.SocketAddress endPoint,
+            boolean wasHandover, boolean wasMandatory) {
+        System.out.println("Reconectado ao ContextNet.");
     }
 
     @Override
     public void unsentMessages(NodeConnection remoteCon, List<Message> unsentMessages) {
+        System.out.println("Há mensagens não enviadas: " + unsentMessages.size());
     }
 
     @Override
     public void internalException(NodeConnection remoteCon, Exception e) {
+        System.err.println("Erro interno na conexão com ContextNet:");
+        e.printStackTrace();
     }
 }
