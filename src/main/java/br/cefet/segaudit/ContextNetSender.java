@@ -20,9 +20,9 @@ public class ContextNetSender implements NodeConnectionListener {
     private UUID myUUID;
     private UUID destinationUUID;
 
-    ContextNetSender(String strMyUUID, String strDestinationUUID, String strGatewayIP, int intGatewayPort) {
-        this.myUUID = UUID.fromString(strMyUUID);
-        this.destinationUUID = UUID.fromString(strDestinationUUID);
+    public ContextNetSender(String strGatewayIP, int intGatewayPort, UUID myUUID, UUID destinationUUID) {
+        this.myUUID = myUUID;
+        this.destinationUUID = destinationUUID;
         this.gatewayIP = strGatewayIP;
         this.gatewayPort = intGatewayPort;
     }
@@ -41,7 +41,8 @@ public class ContextNetSender implements NodeConnectionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        System.out.println("2- IN SENDER Conectando ao gateway " + this.gatewayIP + ":" + this.gatewayPort + " com UUID: "
+                + this.myUUID + " e destino: " + this.destinationUUID);
         ApplicationMessage message = new ApplicationMessage();
         message.setContentObject(msg);
         message.setRecipientID(this.destinationUUID);

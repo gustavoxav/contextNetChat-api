@@ -1,5 +1,6 @@
 package br.cefet.segaudit.service;
 
+import br.cefet.segaudit.ContextNetSender;
 import br.cefet.segaudit.Sender;
 import lac.cnclib.net.NodeConnection;
 import lac.cnclib.net.NodeConnectionListener;
@@ -15,15 +16,20 @@ public class ContextNetClient implements NodeConnectionListener {
     private Sender sender;
     private Consumer<String> messageHandler;
 
-    private final UUID myUUID = UUID.fromString("cc2528b7-fecc-43dd-a1c6-188546f0ccbf");
-    private final UUID destinationUUID = UUID.fromString("641f18ae-6c0c-45c2-972f-d37c309a9b72");
-    private final String gatewayIP = "bsi.cefet-rj.br";
-    private final int gatewayPort = 5500;
+    private final UUID myUUID = UUID.fromString("641f18ae-6c0c-45c2-972f-d37c309a9b72");
+    private final UUID destinationUUID = UUID.fromString("cc2528b7-fecc-43dd-a1c6-188546f0ccbf");
+    private static final String gatewayIP = "192.168.0.102";
+    private static final int gatewayPort = 5500;
 
     public ContextNetClient() {
         System.out.println("Conectando ao gateway " + gatewayIP + ":" + gatewayPort);
         System.out.println("De: " + myUUID + " - Para: " + destinationUUID);
-        sender = new Sender(gatewayIP, gatewayPort, myUUID, destinationUUID,  this::handleIncomingMessage);
+        sender = new Sender(gatewayIP, gatewayPort, myUUID,
+                destinationUUID, this::handleIncomingMessage);
+        sender.sendMessage(
+                "<mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(3337)>");
+        // sender = new Sender(gatewayIP, gatewayPort, myUUID, destinationUUID,
+        // this::handleIncomingMessage);
     }
 
     private void handleIncomingMessage(String message) {
@@ -39,6 +45,11 @@ public class ContextNetClient implements NodeConnectionListener {
 
     public void sendToContextNet(String message) {
         if (sender != null) {
+            if (message.startsWith("\"") && message.endsWith("\"")) {
+                message = message.substring(1, message.length() - 1);
+            }
+
+            System.out.println("[WebSocket] Enviando para ContextNet: " + message);
             sender.sendMessage(message);
         }
     }

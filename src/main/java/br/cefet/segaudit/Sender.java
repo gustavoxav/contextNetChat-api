@@ -25,7 +25,7 @@ public class Sender implements NodeConnectionListener {
         this.gatewayIP = server;
         this.gatewayPort = port;
         this.onMessageReceived = onMessageReceived;
-        System.out.println("IN SENDER Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
+        System.out.println("1- IN SENDER Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
                 + destinationUUID);
 
         InetSocketAddress address = new InetSocketAddress(server, port);

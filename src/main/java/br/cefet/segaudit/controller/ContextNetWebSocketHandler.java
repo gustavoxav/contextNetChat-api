@@ -31,6 +31,7 @@ public class ContextNetWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+       System.out.println("Mensagem recebida do WebSocket: " + message.getPayload());
         contextNetClient.sendToContextNet(message.getPayload());
     }
 
