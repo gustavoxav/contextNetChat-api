@@ -1,22 +1,24 @@
 package br.cefet.segaudit.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
-@Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+import br.cefet.segaudit.controller.ContextNetWebSocketHandler;
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
+@Configuration
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    private final ContextNetWebSocketHandler handler;
+
+    public WebSocketConfig(ContextNetWebSocketHandler handler) {
+        this.handler = handler;
     }
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000")
-            .withSockJS();
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry
+                .addHandler(handler, "/ws")
+                .setAllowedOrigins("*");
     }
 }

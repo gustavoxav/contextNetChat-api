@@ -1,7 +1,6 @@
 package br.cefet.segaudit.controller;
 
 import br.cefet.segaudit.service.ContextNetClient;
-import br.cefet.segaudit.service.ContextNetService;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 

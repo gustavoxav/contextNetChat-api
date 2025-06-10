@@ -1,13 +1,11 @@
 package br.cefet.segaudit.service;
 
-import br.cefet.segaudit.ContextNetSender;
 import br.cefet.segaudit.Sender;
 import lac.cnclib.net.NodeConnection;
 import lac.cnclib.net.NodeConnectionListener;
 import lac.cnclib.sddl.message.Message;
 import org.springframework.stereotype.Service;
 
-import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.function.Consumer;
 
