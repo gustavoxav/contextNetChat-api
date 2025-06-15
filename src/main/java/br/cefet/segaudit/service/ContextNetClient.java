@@ -4,36 +4,36 @@ import br.cefet.segaudit.Sender;
 import lac.cnclib.net.NodeConnection;
 import lac.cnclib.net.NodeConnectionListener;
 import lac.cnclib.sddl.message.Message;
-import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 import java.util.function.Consumer;
 
-@Service
+import br.cefet.segaudit.dto.ContextNetConfig;
+
 public class ContextNetClient implements NodeConnectionListener {
     private Sender sender;
     private Consumer<String> messageHandler;
 
-    private final UUID myUUID = UUID.fromString("641f18ae-6c0c-45c2-972f-d37c309a9b72");
-    private final UUID destinationUUID = UUID.fromString("cc2528b7-fecc-43dd-a1c6-188546f0ccbf");
-    private static final String gatewayIP = "192.168.0.102";
-    private static final int gatewayPort = 5500;
-
-    public ContextNetClient() {
-        System.out.println("Conectando ao gateway " + gatewayIP + ":" + gatewayPort);
-        System.out.println("De: " + myUUID + " - Para: " + destinationUUID);
-        sender = new Sender(gatewayIP, gatewayPort, myUUID,
-                destinationUUID, this::handleIncomingMessage);
+    public ContextNetClient(ContextNetConfig config, Consumer<String> messageHandler) {
+        this.messageHandler = messageHandler;
+        System.out.println("Conectando ao gateway " + config.gatewayIP + ":" + config.gatewayPort);
+        System.out.println("De: " + config.myUUID + " - Para: " + config.destinationUUID);
+        sender = new Sender(
+                config.gatewayIP,
+                config.gatewayPort,
+                config.myUUID,
+                config.destinationUUID,
+                this::handleIncomingMessage);
         sender.sendMessage(
                 "<mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(3337)>");
-        // sender = new Sender(gatewayIP, gatewayPort, myUUID, destinationUUID,
-        // this::handleIncomingMessage);
     }
 
     private void handleIncomingMessage(String message) {
         System.out.println("[WebSocket] Recebido da ContextNet: " + message);
         if (messageHandler != null) {
+            System.out.println("Chamando messageHandler com: " + message);
             messageHandler.accept(message);
+        } else {
+            System.out.println("messageHandler é null!");
         }
     }
 
