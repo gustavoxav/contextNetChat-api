@@ -45,7 +45,7 @@ contextnetchat-api/
 
 ---
 
-## 🚀 Como rodar
+## Como rodar
 
 1. **Clone o projeto**
    ```bash
@@ -91,7 +91,7 @@ contextnetchat-api/
 
 ---
 
-## 📂 Principais Classes
+## Principais Classes
 
 | Classe                         | Função |
 | -------------------------------|--------|
@@ -104,7 +104,7 @@ contextnetchat-api/
 
 ---
 
-## ✅ Exemplo de mensagem ContextNet
+## Exemplo de mensagem ContextNet
 
 ```text
 <mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(3337)>
@@ -114,14 +114,14 @@ contextnetchat-api/
 
 ---
 
-## 📖 Referências
+## Referências
 
 - [ContextNet (PUC-Rio)](https://gitlab.com/contextnet)
 - Documentação interna da biblioteca `contextnet-2.7-patched.jar`
 
 ---
 
-## 👨‍🎓 Autor
+## Autor
 
 **Gustavo Xavier Saldanha**  
 **Mateus Façanha Lima de Souza**  
