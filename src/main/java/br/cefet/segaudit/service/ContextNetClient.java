@@ -15,8 +15,6 @@ public class ContextNetClient implements NodeConnectionListener {
 
     public ContextNetClient(ContextNetConfig config, Consumer<String> messageHandler) {
         this.messageHandler = messageHandler;
-        System.out.println("Conectando ao gateway " + config.gatewayIP + ":" + config.gatewayPort);
-        System.out.println("De: " + config.myUUID + " - Para: " + config.destinationUUID);
         sender = new Sender(
                 config.gatewayIP,
                 config.gatewayPort,
@@ -28,9 +26,7 @@ public class ContextNetClient implements NodeConnectionListener {
     }
 
     private void handleIncomingMessage(String message) {
-        System.out.println("[WebSocket] Recebido da ContextNet: " + message);
         if (messageHandler != null) {
-            System.out.println("Chamando messageHandler com: " + message);
             messageHandler.accept(message);
         } else {
             System.out.println("messageHandler é null!");
@@ -46,8 +42,6 @@ public class ContextNetClient implements NodeConnectionListener {
             if (message.startsWith("\"") && message.endsWith("\"")) {
                 message = message.substring(1, message.length() - 1);
             }
-
-            System.out.println("[WebSocket] Enviando para ContextNet: " + message);
             sender.sendMessage(message);
         }
     }

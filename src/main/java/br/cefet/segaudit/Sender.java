@@ -12,8 +12,6 @@ import lac.cnclib.sddl.message.ApplicationMessage;
 import lac.cnclib.sddl.message.Message;
 
 public class Sender implements NodeConnectionListener {
-    private String gatewayIP;
-    private int gatewayPort;
     private MrUdpNodeConnection connection;
     private UUID myUUID;
     private UUID destinationUUID;
@@ -22,11 +20,7 @@ public class Sender implements NodeConnectionListener {
     public Sender(String server, int port, UUID myUUID, UUID destinationUUID, Consumer<String> onMessageReceived) {
         this.myUUID = myUUID;
         this.destinationUUID = destinationUUID;
-        this.gatewayIP = server;
-        this.gatewayPort = port;
         this.onMessageReceived = onMessageReceived;
-        System.out.println("1- IN SENDER Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
-                + destinationUUID);
 
         InetSocketAddress address = new InetSocketAddress(server, port);
         try {
@@ -51,18 +45,7 @@ public class Sender implements NodeConnectionListener {
     }
 
     public void sendMessage(String msg) {
-        // InetSocketAddress address = new InetSocketAddress(this.gatewayIP, this.gatewayPort);
-        // try {
-        // connection = new MrUdpNodeConnection(getMyUUID());
-        // connection.addNodeConnectionListener(this);
-        // connection.connect(address);
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
         ApplicationMessage message = new ApplicationMessage();
-        System.out.println("IN SENDER SENDING TO...: " + getDestinationUUID());
-        System.out.println("IN SENDER Meu UUID: " + getMyUUID());
-        System.out.println("IN SENDER Mensagem enviada: " + msg);
         message.setContentObject(msg);
         message.setRecipientID(getDestinationUUID());
 
@@ -76,10 +59,7 @@ public class Sender implements NodeConnectionListener {
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
-            System.out.println("Confirmação: " + message.getContentObject());
-
             String received = (String) message.getContentObject();
-            System.out.println("IN SENDER Mensagem recebida: " + received);
             if (onMessageReceived != null) {
                 onMessageReceived.accept(received);
             }

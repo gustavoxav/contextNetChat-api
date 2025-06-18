@@ -1,47 +1,130 @@
-# ContextNet-Encrypted-Messager
+# ContextNet-api Gateway
 
-Este projeto visa proporcionar maior segurança na comunicação entre usuários da rede **ContextNet**, aplicando métodos de criptografia para proteger as mensagens transmitidas.
+Projeto de TCC para o curso de Sistemas de Informação. Esta aplicação Java, desenvolvida com Spring Boot, atua como uma ponte (gateway) entre uma aplicação web cliente (via WebSocket) e a rede ContextNet, permitindo o envio e recebimento de mensagens em tempo real.
 
 ## Objetivo
-Desenvolver uma solução de comunicação segura dentro da rede **ContextNet**, garantindo confidencialidade, integridade e autenticidade das mensagens trocadas entre os usuários.
 
-## Tecnologias Utilizadas
-- **ContextNet**: Rede utilizada para a comunicação entre dispositivos.
-- **Java**: Linguagem de programação usada para implementar a lógica do sistema.
-- **Criptografia**: Métodos de criptografia simétrica e/ou assimétrica para proteger as mensagens trocadas.
+Permitir a comunicação entre um frontend web e a **ContextNet** (rede de middleware para IoT baseada em comunicação de nós), com foco no envio de comandos e recebimento de respostas por meio de mensagens padronizadas.
 
-## Funcionalidades
-- **Envio e Recebimento de Mensagens**: Comunicação entre dois nós da rede ContextNet (remetente e receptor).
-- **Criptografia de Mensagens**: As mensagens são criptografadas antes de serem enviadas e descriptografadas após o recebimento.
+---
 
-## Como Executar
-1. Clone o repositório:
+## Estrutura do Projeto
+
+```
+contextnetchat-api/
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── br/cefet/segaudit/
+│       │       ├── service/
+│       │       │   └── ContextNetClient.java
+│       │       ├── dto/
+│       │       │   └── ContextNetConfig.java
+│       │       ├── factory/
+│       │       │   └── ContextNetClientFactory.java
+│       │       ├── controller/
+│       │       │   └── ContextNetWebSocketHandler.java
+│       │       ├── config/
+│       │       │   └── WebSocketConfig.java
+│       │       ├── Sender.java
+│       └── resources/
+│           └── application.properties
+├── libs/
+│   └── contextnet-2.7-patched.jar
+├── pom.xml
+└── README.md
+```
+---
+
+## 🔧 Requisitos
+
+- Java 17
+- Maven 3.8+
+- Spring Boot 3.2+
+- Dependência ContextNet (`contextnet-2.7-patched.jar`) colocada manualmente em `libs/`
+
+---
+
+## 🚀 Como rodar
+
+1. **Clone o projeto**
    ```bash
    git clone https://github.com/seu-usuario/contextnet-encrypt.git
-   
-2. Para gerar as chave públicas e privadas dos comunicadores, rode o comando abaixo no diretório do projeto. Esse comando gera dois arquivos, um para cada chave, que serão utilizadas posteriormente para realizar a comunicação entre os comunicadores;
+   cd contextnet-encrypt
+   ```
+
+2. **Garanta que o arquivo `contextnet-2.7-patched.jar` está presente**
+   Coloque o JAR fornecido em `libs/contextnet-2.7-patched.jar`.  
+   > O projeto depende dessa biblioteca e a inclui via `systemPath`.
+
+3. **Compile e execute**
    ```bash
-   java -jar appKeys.jar generateKeys [nome-do-arquivo]
+   mvn clean install
+   mvn spring-boot:run
+   ```
 
-3. Para rodar esse comando é necessário já ter os arquivos de chave privada e pública já gerados para os dois comunicados do sistema. Tendo essas chaves em mãos, rode o seguinte comando para poder inicializa-los no sistema ContextNet. Nesse caso, o "sender" é o para o comunicador quie irá se registrar, e o "receiver" são os dados para qual vamos estabelecer a conexão.
-   ```bash
-   java -jar app.jar run [servidor] [porta] [uuid-sender] [privateKey-sender] [uuid-receiver] [receiver-publicKey]
+4. **WebSocket ativo**
+   A aplicação abrirá o endpoint WebSocket na rota:
+   ```
+   ws://localhost:8080/ws
+   ```
+---
 
-Exemplo de comandos:
-   ```bash
-   java -jar target/app.jar sender bsi.cefet-rj.br 5500 cc2528b7-fecc-43dd-a1c6-188546f0ccbf 641f18ae-6c0c-45c2-972f-d37c309a9b72
-   java -jar target/app.jar receiver bsi.cefet-rj.br 5500 641f18ae-6c0c-45c2-972f-d37c309a9b72
+## 🔌 Como funciona
 
-Exemplo de mensagens:
-   ```bash
-   <mid1,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,askOne,641f18ae-6c0c-45c2-972f-d37c309a9b72,numeroDaSorte(N)>
-   <mid1,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,tell,641f18ae-6c0c-45c2-972f-d37c309a9b72,numeroDaSorte(3333)>
+1. O **cliente WebSocket** conecta-se ao servidor e envia um JSON com a configuração:
 
+```json
+{
+  "gatewayIP": "192.168.0.100",
+  "gatewayPort": 5500,
+  "myUUID": "641f18ae-6c0c-45c2-972f-d37c309a9b72",
+  "destinationUUID": "cc2528b7-fecc-43dd-a1c6-188546f0ccbf"
+}
+```
 
-## Futuras Implementações
-- Melhorias na interface de usuário.
-- Implementação de novos algoritmos de criptografia.
-- Auditoria de segurança automatizada.
+2. O servidor cria uma instância de `ContextNetClient`, que usa a classe `Sender` para se conectar ao gateway da **ContextNet** e enviar a mensagem de registro.
 
+3. Após isso, o cliente pode enviar mensagens de texto pelo WebSocket, que são redirecionadas à ContextNet.
 
-## CEFET-RJ, Sistemas de Informação
+4. Respostas vindas da ContextNet são recebidas pela `Sender`, repassadas para o `ContextNetClient`, e depois reenviadas ao frontend via WebSocket.
+
+---
+
+## 📂 Principais Classes
+
+| Classe                         | Função |
+| -------------------------------|--------|
+| `Sender`                       | Gerencia a conexão com a ContextNet via MRUDP. |
+| `ContextNetClient`             | Faz a ponte entre a `Sender` e o WebSocket. |
+| `ContextNetWebSocketHandler`   | Trata as conexões WebSocket, cria instâncias de `ContextNetClient`. |
+| `ContextNetClientFactory`      | Cria clientes configurados com os dados enviados. |
+| `ContextNetConfig`             | DTO que representa os dados necessários para conectar à ContextNet. |
+| `WebSocketConfig`              | Configura o endpoint WebSocket no Spring. |
+
+---
+
+## ✅ Exemplo de mensagem ContextNet
+
+```text
+<mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(3337)>
+```
+
+> Este formato segue a especificação esperada pela ContextNet (mid, remetente, tipo, destinatário, conteúdo).
+
+---
+
+## 📖 Referências
+
+- [ContextNet (PUC-Rio)](https://gitlab.com/contextnet)
+- Documentação interna da biblioteca `contextnet-2.7-patched.jar`
+
+---
+
+## 👨‍🎓 Autor
+
+**Gustavo Xavier Saldanha**  
+**Mateus Façanha Lima de Souza**  
+Projeto de Conclusão de Curso — Bacharelado em Sistemas de Informação  
+CEFET/RJ - 2025
+

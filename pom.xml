@@ -11,7 +11,7 @@
   </parent>
 
   <groupId>br.cefet.segaudit</groupId>
-  <artifactId>contextnet-encrypt</artifactId>
+  <artifactId>contextnetchat-api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
