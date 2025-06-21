@@ -35,8 +35,13 @@ contextnetchat-api/
 └── README.md
 ```
 ---
+## Arquitetura do Sistema
 
-## 🔧 Requisitos
+![Arquitetura da aplicação](docs\images\ContextNet-chat-interface-diagram.jpg)
+
+---
+
+## Requisitos
 
 - Java 17
 - Maven 3.8+
@@ -70,7 +75,7 @@ contextnetchat-api/
    ```
 ---
 
-## 🔌 Como funciona
+## Como funciona
 
 1. O **cliente WebSocket** conecta-se ao servidor e envia um JSON com a configuração:
 
