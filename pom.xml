@@ -23,8 +23,6 @@
       <groupId>br.pucrio.inf.lac</groupId>
       <artifactId>contextnet</artifactId>
       <version>2.7-patched</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/libs/contextnet-2.7-patched.jar</systemPath>
     </dependency>
 
     <dependency>
