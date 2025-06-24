@@ -37,7 +37,7 @@ contextnetchat-api/
 ---
 ## Arquitetura do Sistema
 
-![Arquitetura da aplicação](docs\images\ContextNet-chat-interface-diagram.jpg)
+![Arquitetura da aplicação](./docs/images/ContextNet-chat-interface-diagram.jpg)
 
 ---
 
