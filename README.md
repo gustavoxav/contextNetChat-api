@@ -126,10 +126,22 @@ contextnetchat-api/
 
 ---
 
-## Autor
+## Equipe
 
-**Gustavo Xavier Saldanha**  
-**Mateus Façanha Lima de Souza**  
-Projeto de Conclusão de Curso — Bacharelado em Sistemas de Informação  
-CEFET/RJ - 2025
+### Desenvolvedores
+- **Nome**: Gustavo Xavier Saldanha e Mateus Façanha Lima de Souza
+- **Curso**: Sistemas de Informação
+- **Instituição**: CEFET/RJ Campus Nova Friburgo
+- **Email**: gustavosaldxav@gmail.com e facanhalima85@gmail.com
+- **LinkedIn**: [https://github.com/gustavoxav](https://github.com/gustavoxav) e [https://github.com/gustavoxav](https://github.com/gustavoxav) 
+
+### Orientador
+- **Prof. Dr.**: Nilson Mori Lazarin
+- **Email**: [nilsonmori@gmail.com](nilsonmori@gmail.com)
+
+---
+<div align="center">
+  <p>Desenvolvido para o TCC de Sistemas de Informação</p>
+  <p>© 2025</p>
+</div>
 
