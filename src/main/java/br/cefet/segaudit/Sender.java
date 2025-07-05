@@ -12,19 +12,27 @@ import lac.cnclib.sddl.message.ApplicationMessage;
 import lac.cnclib.sddl.message.Message;
 
 public class Sender implements NodeConnectionListener {
+    private String gatewayIP;
+    private int gatewayPort;
     private MrUdpNodeConnection connection;
     private UUID myUUID;
     private UUID destinationUUID;
     private Consumer<String> onMessageReceived;
+    private NodeConnectionListener externalListener;
 
     public Sender(String server, int port, UUID myUUID, UUID destinationUUID, Consumer<String> onMessageReceived) {
         this.myUUID = myUUID;
         this.destinationUUID = destinationUUID;
+        this.gatewayIP = server;
+        this.gatewayPort = port;
         this.onMessageReceived = onMessageReceived;
+        System.out.println(
+                "1- IN SENDER Conectando ao gateway " + server + ":" + port + " com UUID: " + myUUID + " e destino: "
+                        + destinationUUID);
 
         InetSocketAddress address = new InetSocketAddress(server, port);
         try {
-            connection = new MrUdpNodeConnection(this.myUUID);
+            connection = new MrUdpNodeConnection(this.destinationUUID);
             connection.addNodeConnectionListener(this);
             connection.connect(address);
         } catch (IOException e) {
@@ -42,12 +50,18 @@ public class Sender implements NodeConnectionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (externalListener != null) {
+            externalListener.connected(remoteCon);
+        }
     }
 
     public void sendMessage(String msg) {
         ApplicationMessage message = new ApplicationMessage();
+        System.out.println("IN SENDER SENDING TO...: " + getMyUUID());
+        System.out.println("IN SENDER Meu UUID: " + getMyUUID());
+        System.out.println("IN SENDER Mensagem enviada: " + msg);
         message.setContentObject(msg);
-        message.setRecipientID(getDestinationUUID());
+        message.setRecipientID(getMyUUID());
 
         try {
             connection.sendMessage(message);
@@ -59,13 +73,20 @@ public class Sender implements NodeConnectionListener {
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
+            System.out.println("Confirmação: " + message.getContentObject());
+
             String received = (String) message.getContentObject();
+            System.out.println("IN SENDER Mensagem recebida: " + received);
             if (onMessageReceived != null) {
                 onMessageReceived.accept(received);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setConnectionListener(NodeConnectionListener listener) {
+        this.externalListener = listener;
     }
 
     public UUID getDestinationUUID() {

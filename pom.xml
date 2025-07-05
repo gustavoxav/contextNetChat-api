@@ -22,7 +22,9 @@
     <dependency>
       <groupId>br.pucrio.inf.lac</groupId>
       <artifactId>contextnet</artifactId>
-      <version>2.7-patched</version>
+      <version>2.7</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/contextnet-2.7-spring.jar</systemPath>
     </dependency>
 
     <dependency>

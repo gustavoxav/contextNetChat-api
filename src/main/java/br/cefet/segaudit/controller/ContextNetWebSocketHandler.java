@@ -28,17 +28,20 @@ public class ContextNetWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
+        System.out.println("Nova sessão WebSocket: " + session.getId());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
         clients.remove(session.getId());
+        System.out.println("Sessão encerrada: " + session.getId());
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
+        System.out.println("[" + session.getId() + "] Mensagem recebida: " + payload);
         try {
 
             if (!clients.containsKey(session.getId())) {
@@ -60,6 +63,7 @@ public class ContextNetWebSocketHandler extends TextWebSocketHandler {
 
     private void sendToSession(WebSocketSession session, String msg) {
         try {
+            System.out.println("Tentando enviar para sessão: " + session.getId() + msg);
             if (session.isOpen()) {
                 session.sendMessage(new TextMessage(msg));
             }
