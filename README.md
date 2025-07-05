@@ -54,7 +54,7 @@ contextnetchat-api/
 
 1. **Clone o projeto**
    ```bash
-   git clone https://github.com/seu-usuario/contextnet-encrypt.git
+   git clone https://github.com/gustavoxav/contextNetChat-api.git
    cd contextnet-encrypt
    ```
 
