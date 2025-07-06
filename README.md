@@ -30,7 +30,7 @@ contextnetchat-api/
 │       └── resources/
 │           └── application.properties
 ├── libs/
-│   └── contextnet-2.7-patched.jar
+│   └── contextnet-2.7-spring.jar
 ├── pom.xml
 └── README.md
 ```
@@ -46,7 +46,7 @@ contextnetchat-api/
 - Java 17
 - Maven 3.8+
 - Spring Boot 3.2+
-- Dependência ContextNet (`contextnet-2.7-patched.jar`) colocada manualmente em `libs/`
+- Dependência ContextNet (`contextnet-2.7-spring.jar`) colocada manualmente em `libs/`
 
 ---
 
@@ -58,8 +58,8 @@ contextnetchat-api/
    cd contextnet-encrypt
    ```
 
-2. **Garanta que o arquivo `contextnet-2.7-patched.jar` está presente**
-   Coloque o JAR fornecido em `libs/contextnet-2.7-patched.jar`.  
+2. **Garanta que o arquivo `contextnet-2.7-spring.jar` está presente**
+   Coloque o JAR fornecido em `libs/contextnet-2.7-spring.jar`.  
    > O projeto depende dessa biblioteca e a inclui via `systemPath`.
 
 3. **Compile e execute**
