@@ -133,7 +133,7 @@ contextnetchat-api/
 - **Curso**: Sistemas de Informação
 - **Instituição**: CEFET/RJ Campus Nova Friburgo
 - **Email**: gustavosaldxav@gmail.com e facanhalima85@gmail.com
-- **LinkedIn**: [https://github.com/gustavoxav](https://github.com/gustavoxav) e [https://github.com/gustavoxav](https://github.com/gustavoxav) 
+- **LinkedIn**: [https://www.linkedin.com/in/gustavosaldxav](https://www.linkedin.com/in/gustavosaldxav) e [https://www.linkedin.com/in/mateusfacanha](https://www.linkedin.com/in/mateusfacanha) 
 
 ### Orientador
 - **Prof. Dr.**: Nilson Mori Lazarin
