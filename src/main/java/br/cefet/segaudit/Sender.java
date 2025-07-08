@@ -43,8 +43,6 @@ public class Sender implements NodeConnectionListener {
     @Override
     public void connected(NodeConnection remoteCon) {
         ApplicationMessage message = new ApplicationMessage();
-        message.setContentObject("IN SENDER Registering");
-
         try {
             connection.sendMessage(message);
         } catch (IOException e) {
@@ -57,9 +55,7 @@ public class Sender implements NodeConnectionListener {
 
     public void sendMessage(String msg) {
         ApplicationMessage message = new ApplicationMessage();
-        System.out.println("IN SENDER SENDING TO...: " + getMyUUID());
-        System.out.println("IN SENDER Meu UUID: " + getMyUUID());
-        System.out.println("IN SENDER Mensagem enviada: " + msg);
+        System.out.println("Mensagem enviada: " + msg + "  para: " + getDestinationUUID() + " - " + getMyUUID());
         message.setContentObject(msg);
         message.setRecipientID(getMyUUID());
 
@@ -73,8 +69,6 @@ public class Sender implements NodeConnectionListener {
     @Override
     public void newMessageReceived(NodeConnection remoteCon, Message message) {
         try {
-            System.out.println("Confirmação: " + message.getContentObject());
-
             String received = (String) message.getContentObject();
             System.out.println("IN SENDER Mensagem recebida: " + received);
             if (onMessageReceived != null) {
