@@ -32,7 +32,7 @@ public class Sender implements NodeConnectionListener {
 
         InetSocketAddress address = new InetSocketAddress(server, port);
         try {
-            connection = new MrUdpNodeConnection(this.destinationUUID);
+            connection = new MrUdpNodeConnection(this.myUUID);
             connection.addNodeConnectionListener(this);
             connection.connect(address);
         } catch (IOException e) {
@@ -57,7 +57,7 @@ public class Sender implements NodeConnectionListener {
         ApplicationMessage message = new ApplicationMessage();
         System.out.println("Mensagem enviada: " + msg + "  para: " + getDestinationUUID() + " - " + getMyUUID());
         message.setContentObject(msg);
-        message.setRecipientID(getMyUUID());
+        message.setRecipientID(getDestinationUUID());
 
         try {
             connection.sendMessage(message);
