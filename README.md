@@ -155,5 +155,3 @@ contextnetchat-api/
   <p>Developed for the Information Systems Final Project (TCC)</p>
   <p>© 2025</p>
 </div>
-
-Quer que eu gere a versão já formatada em um arquivo `README_en.md` pronto para colocar no repositório (com o mesmo estilo Markdown)?
