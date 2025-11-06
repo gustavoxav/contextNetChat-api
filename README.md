@@ -1,14 +1,15 @@
 # ContextNet-api Gateway
 
-Projeto de TCC para o curso de Sistemas de Informação. Esta aplicação Java, desenvolvida com Spring Boot, atua como uma ponte (gateway) entre uma aplicação web cliente (via WebSocket) e a rede ContextNet, permitindo o envio e recebimento de mensagens em tempo real.
+Final Project (TCC) for the Information Systems degree.
+This Java application, developed with Spring Boot, acts as a **gateway** between a client web application (via WebSocket) and the **ContextNet** network, enabling real-time message sending and receiving.
 
-## Objetivo
+## Objective
 
-Permitir a comunicação entre um frontend web e a **ContextNet** (rede de middleware para IoT baseada em comunicação de nós), com foco no envio de comandos e recebimento de respostas por meio de mensagens padronizadas.
+Enable communication between a web frontend and **ContextNet** (a node-based middleware network for IoT), focusing on sending commands and receiving responses through standardized message formats.
 
 ---
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 contextnetchat-api/
@@ -34,50 +35,57 @@ contextnetchat-api/
 ├── pom.xml
 └── README.md
 ```
----
-## Arquitetura do Sistema
-
-![Arquitetura da aplicação](./docs/images/ContextNet-chat-interface-diagram.jpg)
 
 ---
 
-## Requisitos
+## System Architecture
 
-- Java 17
-- Maven 3.8+
-- Spring Boot 3.2+
-- Dependência ContextNet (`contextnet-2.7-spring.jar`) colocada manualmente em `libs/`
+![Application Architecture](./docs/images/ContextNet-chat-interface-diagram.jpg)
 
 ---
 
-## Como rodar
+## Requirements
 
-1. **Clone o projeto**
+* Java 17
+* Maven 3.8+
+* Spring Boot 3.2+
+* ContextNet dependency (`contextnet-2.7-spring.jar`) manually placed in the `libs/` directory
+
+---
+
+## How to Run
+
+1. **Clone the project**
+
    ```bash
    git clone https://github.com/gustavoxav/contextNetChat-api.git
    cd contextnet-encrypt
    ```
 
-2. **Garanta que o arquivo `contextnet-2.7-spring.jar` está presente**
-   Coloque o JAR fornecido em `libs/contextnet-2.7-spring.jar`.  
-   > O projeto depende dessa biblioteca e a inclui via `systemPath`.
+2. **Ensure the `contextnet-2.7-spring.jar` file is present**
+   Place the provided JAR inside `libs/contextnet-2.7-spring.jar`.
 
-3. **Compile e execute**
+   > The project depends on this library and includes it via `systemPath`.
+
+3. **Build and run**
+
    ```bash
    mvn clean install
    mvn spring-boot:run
    ```
 
-4. **WebSocket ativo**
-   A aplicação abrirá o endpoint WebSocket na rota:
+4. **Active WebSocket**
+   The application will open a WebSocket endpoint at:
+
    ```
    ws://localhost:8080/ws
    ```
+
 ---
 
-## Como funciona
+## How It Works
 
-1. O **cliente WebSocket** conecta-se ao servidor e envia um JSON com a configuração:
+1. The **WebSocket client** connects to the server and sends a JSON configuration object:
 
 ```json
 {
@@ -88,60 +96,64 @@ contextnetchat-api/
 }
 ```
 
-2. O servidor cria uma instância de `ContextNetClient`, que usa a classe `Sender` para se conectar ao gateway da **ContextNet** e enviar a mensagem de registro.
+2. The server creates an instance of `ContextNetClient`, which uses the `Sender` class to connect to the **ContextNet** gateway and send the registration message.
 
-3. Após isso, o cliente pode enviar mensagens de texto pelo WebSocket, que são redirecionadas à ContextNet.
+3. After that, the client can send text messages through the WebSocket, which are redirected to ContextNet.
 
-4. Respostas vindas da ContextNet são recebidas pela `Sender`, repassadas para o `ContextNetClient`, e depois reenviadas ao frontend via WebSocket.
-
----
-
-## Principais Classes
-
-| Classe                         | Função |
-| -------------------------------|--------|
-| `Sender`                       | Gerencia a conexão com a ContextNet via MRUDP. |
-| `ContextNetClient`             | Faz a ponte entre a `Sender` e o WebSocket. |
-| `ContextNetWebSocketHandler`   | Trata as conexões WebSocket, cria instâncias de `ContextNetClient`. |
-| `ContextNetClientFactory`      | Cria clientes configurados com os dados enviados. |
-| `ContextNetConfig`             | DTO que representa os dados necessários para conectar à ContextNet. |
-| `WebSocketConfig`              | Configura o endpoint WebSocket no Spring. |
+4. Responses coming from ContextNet are received by `Sender`, passed to `ContextNetClient`, and then forwarded back to the frontend via WebSocket.
 
 ---
 
-## Exemplo de mensagem ContextNet
+## Main Classes
+
+| Class                        | Function                                                                |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `Sender`                     | Manages the connection to ContextNet via MRUDP.                         |
+| `ContextNetClient`           | Acts as a bridge between `Sender` and the WebSocket.                    |
+| `ContextNetWebSocketHandler` | Handles WebSocket connections and creates `ContextNetClient` instances. |
+| `ContextNetClientFactory`    | Builds clients configured with the received connection data.            |
+| `ContextNetConfig`           | DTO that represents the necessary data to connect to ContextNet.        |
+| `WebSocketConfig`            | Configures the WebSocket endpoint in Spring.                            |
+
+---
+
+## Example of a ContextNet Message
 
 ```text
 <mid1,641f18ae-6c0c-45c2-972f-d37c309a9b72,tell,cc2528b7-fecc-43dd-a1c6-188546f0ccbf,numeroDaSorte(3337)>
 ```
 
-> Este formato segue a especificação esperada pela ContextNet (mid, remetente, tipo, destinatário, conteúdo).
+> This format follows the specification expected by ContextNet (mid, sender, type, receiver, content).
 
 ---
 
-## Referências
+## References
 
-- [ContextNet (PUC-Rio)](https://gitlab.com/contextnet)
-- Documentação interna da biblioteca `contextnet-2.7-patched.jar`
+* [ContextNet (PUC-Rio)](https://gitlab.com/contextnet)
+* Internal documentation of the library `contextnet-2.7-patched.jar`
+
+---
+
+## Team
+
+### Developers
+
+* **Names**: Gustavo Xavier Saldanha and Mateus Façanha Lima de Souza
+* **Program**: Information Systems
+* **Institution**: CEFET/RJ – Nova Friburgo Campus
+* **Emails**: [gustavosaldxav@gmail.com](mailto:gustavosaldxav@gmail.com) and [facanhalima85@gmail.com](mailto:facanhalima85@gmail.com)
+* **LinkedIn**: [https://www.linkedin.com/in/gustavosaldxav](https://www.linkedin.com/in/gustavosaldxav) and [https://www.linkedin.com/in/mateusfacanha](https://www.linkedin.com/in/mateusfacanha)
+
+### Advisor
+
+* **Prof. Dr.**: Nilson Mori Lazarin
+* **Email**: [nilsonmori@gmail.com](nilsonmori@gmail.com)
 
 ---
 
-## Equipe
-
-### Desenvolvedores
-- **Nome**: Gustavo Xavier Saldanha e Mateus Façanha Lima de Souza
-- **Curso**: Sistemas de Informação
-- **Instituição**: CEFET/RJ Campus Nova Friburgo
-- **Email**: gustavosaldxav@gmail.com e facanhalima85@gmail.com
-- **LinkedIn**: [https://www.linkedin.com/in/gustavosaldxav](https://www.linkedin.com/in/gustavosaldxav) e [https://www.linkedin.com/in/mateusfacanha](https://www.linkedin.com/in/mateusfacanha) 
-
-### Orientador
-- **Prof. Dr.**: Nilson Mori Lazarin
-- **Email**: [nilsonmori@gmail.com](nilsonmori@gmail.com)
-
----
 <div align="center">
-  <p>Desenvolvido para o TCC de Sistemas de Informação</p>
+  <p>Developed for the Information Systems Final Project (TCC)</p>
   <p>© 2025</p>
 </div>
 
+Quer que eu gere a versão já formatada em um arquivo `README_en.md` pronto para colocar no repositório (com o mesmo estilo Markdown)?
